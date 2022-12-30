@@ -19,6 +19,7 @@ starttime = datetime.now()
 
 CAT6 = ['fear', 'angry', 'neutral', 'happy', 'sad', 'surprise']
 CAT7 = ['fear', 'disgust', 'neutral', 'happy', 'sad', 'surprise', 'angry']
+CAT8 = ['fear', 'disgust', 'neutral', 'happy', 'sad', 'surprise', 'angry', 'calm']
 CAT3 = ["positive", "neutral", "negative"]
 
 COLOR_DICT = {"neutral": "grey",
@@ -31,7 +32,7 @@ COLOR_DICT = {"neutral": "grey",
               "sad": "lightblue",
               "disgust": "brown"}
 
-TEST_CAT = ['fear', 'disgust', 'neutral', 'happy', 'sad', 'surprise', 'angry']
+TEST_CAT = ['fear', 'disgust', 'neutral', 'happy', 'sad', 'surprise', 'angry','calm']
 TEST_PRED = np.array([.3, .3, .4, .1, .6, .9, .1])
 
 # page settings
@@ -165,7 +166,7 @@ def main():
     if website_menu == "Emotion Recognition":
         st.sidebar.subheader("Model")
         model_type = st.sidebar.selectbox("How would you like to predict?", ("mfccs", "mel-specs"))
-        em3 = em6 = em7 = gender = False
+        em3 = em6 = em7 = em8 = gender = False
         st.sidebar.subheader("Settings")
 
         st.markdown("## Upload the file")
@@ -233,7 +234,8 @@ def main():
         if model_type == "mfccs":
             em3 = st.sidebar.checkbox("3 emotions", True)
             em6 = st.sidebar.checkbox("6 emotions", True)
-            em7 = st.sidebar.checkbox("7 emotions")
+            em7 = st.sidebar.checkbox("7 emotions", True)
+            em8 = st.sidebar.checkbox("8 emotions")
             gender = st.sidebar.checkbox("gender")
 
         elif model_type == "mel-specs":
@@ -306,7 +308,7 @@ def main():
             if model_type == "mfccs":
                 st.markdown("## Predictions")
                 with st.container():
-                    col1, col2, col3, col4 = st.columns(4)
+                    col1, col2, col3, col4, col5 = st.columns(5)
                     mfccs = get_mfccs(path, model.input_shape[-1])
                     mfccs = mfccs.reshape(1, *mfccs.shape)
                     pred = model.predict(mfccs)[0]
@@ -367,6 +369,20 @@ def main():
                                 plt.imshow(img)
                                 plt.axis("off")
                                 st.write(fig4)
+                    with col5:
+                        if em8:
+                            model_ = load_model("model_abyazid.h5")
+                            mfccs_ = get_mfccs(path, model_.input_shape[-2])
+                            mfccs_ = mfccs_.T.reshape(1, *mfccs_.T.shape)
+                            pred_ = model_.predict(mfccs_)[0]
+                            txt = "MFCCs\n" + get_title(pred_, CAT8)
+                            fig5 = plt.figure(figsize=(5, 5))
+                            COLORS = color_dict(COLOR_DICT)
+                            plot_colored_polar(fig5, predictions=pred_, categories=CAT8,
+                                               title=txt, colors=COLORS)
+                            # plot_polar(fig3, predictions=pred_, categories=CAT7,
+                            #            title=txt, colors=COLORS)
+                            st.write(fig5)
 
             # if model_type == "mel-specs":
             # st.markdown("## Predictions")
@@ -425,9 +441,7 @@ def main():
         txt = """
             Datasets used in this project:
 
-            * Crowd-sourced Emotional Mutimodal Actors Dataset (**Crema-D**)
             * Ryerson Audio-Visual Database of Emotional Speech and Song (**Ravdess**)
-            * Surrey Audio-Visual Expressed Emotion (**Savee**)
             * Toronto emotional speech set (**Tess**)    
             """
         st.markdown(txt, unsafe_allow_html=True)
@@ -459,13 +473,13 @@ def main():
         col1, col2 = st.columns([3, 2])
         with col1:
             st.info("hami.asmai@gmail.com")
-            st.info("aby.yazid@gmail.com")
+            st.info("aby.azid@gmail.com")
         with col2:
             liimg = Image.open("images/LI-Logo.png")
             st.image(liimg)
             st.markdown(f""":speech_balloon: [Hami Ismail](https://www.linkedin.com/in/hami-ismail-04129056/)""",
                         unsafe_allow_html=True)
-            st.markdown(f""":speech_balloon: [Aby Yazid](https://www.linkedin.com/in/tal-baram-b00b66180)""",
+            st.markdown(f""":speech_balloon: [Aby Yazid](https://www.linkedin.com/in/aby-azid-abu-bakar-73727829/)""",
                         unsafe_allow_html=True)
 
     #elif website_menu == "Leave feedback":
